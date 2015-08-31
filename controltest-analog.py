@@ -29,8 +29,8 @@ def terminate():
     
 # set up joystick
 pygame.joystick.init()
-joystick = pygame.joystick.Joystick(0)
-joystick.init
+control0 = pygame.joystick.Joystick(0)
+control0.init()
 
 # make a loop to hold everything
 while True:
@@ -43,11 +43,11 @@ while True:
 
 # get joystick inputs and animate the screen
         elif event.type == JOYAXISMOTION:
-            x_val = -(joystick.get_axis(0))
-            y_val = joystick.get_axis(1)
-            pygame.joystick.get_axis(0)
-            pygame.joystick.get_axis(1)
-            pygame.draw.circle(Screen, blue, ((x_val * 150 + 50), (y_val * 150 + 150)), 10, 0)
+            x_val = control0.get_axis(0)
+            y_val = control0.get_axis(1)
+            control0.get_axis(0)
+            control0.get_axis(1)
+            pygame.draw.circle(Screen, blue, ((int(x_val * 150) + 50), (int(y_val * 150) + 150)), 10, 0)
 
 # close the loop
     pygame.display.update()
