@@ -39,8 +39,8 @@ def readadc(adcnum, clockpin, mosipin, misopin, cspin):
     adcout >>=1 # first bit is 'null' and gets dropped
     return adcout
 
-# function for joystick deadzones
-def deadzone(stickvalue):
+# function for joystick deadzones (in progress)
+# def deadzone(stickvalue):
         
 
 # define which pins are being used
@@ -55,6 +55,11 @@ GPIO.setup(SPIMISO, GPIO.IN)
 GPIO.setup(SPICLK, GPIO.OUT)
 GPIO.setup(SPICS, GPIO.OUT)
 
+# set up the PWM outputs to the motors (in progress)
+#PWM_FREQ = 0
+#pwm_L = GPIO.PWM("pin number", PWM_FREQ)
+#pwm_R = GPIO.PWM("pin number", PWM_FREQ)
+
 # joystick ADC channels
 joy_x_adc = 0
 joy_y_adc = 1
@@ -64,11 +69,15 @@ while True:
     joy_y = readadc(joy_y_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
 
     # convert the ADC values to something the motor driver can use
-    joy_x = joy_x - 512
-    joy_y = joy_y - 512
+    joy_x = (joy_x - 512)
+    joy_y = (joy_y - 512)
+    
+    motor_L = float(joy_y + joy_x)/511
+    motor_R = float(joy_y - joy_x)/511
+    
     # send commands out to the motors
 
     # put joystick position on the screen
     if DEBUG:
-        print "Joy X", joy_x, "Joy Y", joy_y
+        print "Joy X", joy_x, "Joy Y", joy_y, "Motor L", motor_L, "Motor R", motor_R
         
