@@ -49,16 +49,27 @@ SPIMISO = 23
 SPIMOSI = 24
 SPICS = 25
 
-# set up the SPI interface pins
+# set up the pins
 GPIO.setup(SPIMOSI, GPIO.OUT)
 GPIO.setup(SPIMISO, GPIO.IN)
 GPIO.setup(SPICLK, GPIO.OUT)
 GPIO.setup(SPICS, GPIO.OUT)
+GPIO.setup(19, GPIO.OUT)
+GPIO.setup(26, GPIO.OUT)
+GPIO.setup(16, GPIO.OUT)
+GPIO.setup(20, GPIO.OUT)
 
-# set up the PWM outputs to the motors (in progress)
-#PWM_FREQ = 0
-#pwm_L = GPIO.PWM("pin number", PWM_FREQ)
-#pwm_R = GPIO.PWM("pin number", PWM_FREQ)
+
+# set up the PWM outputs to the motors 
+PWM_FREQ = 50
+pwm_LF = GPIO.PWM(19, PWM_FREQ)
+pwm_LR = GPIO.PWM(26, PWM_FREQ)
+pwm_RF = GPIO.PWM(16, PWM_FREQ)
+pwm_RR = GPIO.PWM(20, PWM_FREQ)
+pwm_LF.start(0)
+pwm_LR.start(0)
+pwm_RF.start(0)
+pwm_RR.start(0)
 
 # joystick ADC channels
 joy_x_adc = 0
@@ -75,9 +86,32 @@ while True:
     motor_L = float(joy_y + joy_x)/511
     motor_R = float(joy_y - joy_x)/511
     
-    # send commands out to the motors
+    if motor_L > 1:
+        motor_L = 1
+    if motor_R > 1:
+        motor_R = 1
+    if motor_L < -1:
+        motor_L = -1
+    if motor_R < -1:
+        motor_R = -1
 
+   
+    # send commands out to the motors
+    if motor_L > 0:
+        pwm_LF.ChangeDutyCycle(motor_L * 100)
+        pwm_LR.ChangeDutyCycle(0)
+    if motor_L < 0:
+        pwm_LR.ChangeDutyCycle(motor_L * -100)
+        pwm_LF.ChangeDutyCycle(0)
+    if motor_R > 0:
+        pwm_RF.ChangeDutyCycle(motor_R * 100)
+        pwm_RR.ChangeDutyCycle(0)
+    if motor_R < 0:
+        pwm_RR.ChangeDutyCycle(motor_R * -100)
+        pwm_RF.ChangeDutyCycle(0)
+    
     # put joystick position on the screen
     if DEBUG:
         print "Joy X", joy_x, "Joy Y", joy_y, "Motor L", motor_L, "Motor R", motor_R
+
         
