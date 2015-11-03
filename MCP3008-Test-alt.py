@@ -80,35 +80,39 @@ while True:
     joy_y = readadc(joy_y_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
 
     # convert the ADC values to something the motor driver can use
-    joy_x = (joy_x - 512)
-    joy_y = (joy_y - 512)
+    joy_x = (joy_x - 525)
+    joy_y = (joy_y - 521)
     
-    motor_L = float(joy_y + joy_x)/511
-    motor_R = float(joy_y - joy_x)/511
-    
-    if motor_L > 1:
-        motor_L = 1
-    if motor_R > 1:
-        motor_R = 1
-    if motor_L < -1:
-        motor_L = -1
-    if motor_R < -1:
-        motor_R = -1
+    motor_L = float(joy_y + joy_x)/1024
+    motor_R = float(joy_y - joy_x)/1024
 
-   
+    if motor_L > 1:
+        motor_L == 1
+    if motor_R > 1:
+        motor_R == 1
+    if motor_L < -1:
+        motor_L == -1
+    if motor_R < -1:
+        motor_R == -1
+
+    LF = motor_L * 50
+    LR = motor_L * -50
+    RF = motor_R * 50
+    RR = motor_R * -50
+       
     # send commands out to the motors
     if motor_L > 0:
-        pwm_LF.ChangeDutyCycle(motor_L * 100)
         pwm_LR.ChangeDutyCycle(0)
-    if motor_L < 0:
-        pwm_LR.ChangeDutyCycle(motor_L * -100)
+        pwm_LF.ChangeDutyCycle(LF)
+    if motor_L <= 0:
         pwm_LF.ChangeDutyCycle(0)
+        pwm_LR.ChangeDutyCycle(LR)
     if motor_R > 0:
-        pwm_RF.ChangeDutyCycle(motor_R * 100)
         pwm_RR.ChangeDutyCycle(0)
-    if motor_R < 0:
-        pwm_RR.ChangeDutyCycle(motor_R * -100)
+        pwm_RF.ChangeDutyCycle(RF)
+    if motor_R <= 0:
         pwm_RF.ChangeDutyCycle(0)
+        pwm_RR.ChangeDutyCycle(RR)
     
     # put joystick position on the screen
     if DEBUG:
