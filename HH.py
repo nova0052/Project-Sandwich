@@ -41,12 +41,12 @@ def readadc(adcnum, clockpin, mosipin, misopin, cspin):
     return adcout
 
 # function to concatenate control commands into a single string
-def stringulate(cmd, dat):
-    if cmd >= 0:
-        dat += "+" + str(cmd)
-    else:
-        dat += "-" + str(cmd)
-        
+#def stringulate(cmd, dat):
+#    if cmd >= 0:
+#        dat += "+" + str(cmd)
+#    else:
+#        dat += str(cmd)
+
 
 # define which pins are being used
 SPICLK = 18
@@ -75,6 +75,8 @@ except socket.error:
 host = 'localhost'
 port = 7004
 
+ynx = ""
+
 while True:
     joy_x = readadc(joy_x_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
     joy_y = readadc(joy_y_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
@@ -82,16 +84,21 @@ while True:
     # convert the ADC values to something the motor driver can use
     joy_x = (joy_x - 525)
     joy_y = (joy_y - 521)
-    
-    dat = ""
 
-    stringulate(joy_x, dat)
-    stringulate(joy_y, dat)
+    if joy_x >-1:
+        ynx += "+" + str(joy_x)
+    else:
+        ynx += str(joy_x)
+
+    if joy_y >-1:
+        ynx += "+" + str(joy_y)
+    else:
+        ynx += str(joy_y)
 
     print "Joy X", joy_x, "Joy Y", joy_y
-    
+
     try:
-        sock.sendto(str(dat), (host, port))
+        sock.sendto(str(ynx), (host, port))
         d = sock.recvfrom(1024)
         reply = d[0]
         addr = d[1]
