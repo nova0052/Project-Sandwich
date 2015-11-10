@@ -43,9 +43,9 @@ def readadc(adcnum, clockpin, mosipin, misopin, cspin):
 # function to concatenate control commands into a single string
 def stringulate(cmd, dat):
     if cmd >= 0:
-        dat.append("+" + str(cmd))
+        dat += "+" + str(cmd)
     else:
-        dat.append("-" + str(cmd))
+        dat += "-" + str(cmd)
         
 
 # define which pins are being used
@@ -83,7 +83,7 @@ while True:
     joy_x = (joy_x - 525)
     joy_y = (joy_y - 521)
     
-    dat = []
+    dat = ""
 
     stringulate(joy_x, dat)
     stringulate(joy_y, dat)
