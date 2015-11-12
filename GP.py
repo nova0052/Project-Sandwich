@@ -45,7 +45,8 @@ print 'Socket bind complete'
 # talk to the client
 while True:
     # receive data from client
-    d = sock.recvfrom(1024)
+    d = ''
+    d = sock.recvfrom(8)
     dat = d[0]
     addr = d[1]
     print d
@@ -84,8 +85,8 @@ while True:
         pwm_RF.ChangeDutyCycle(0)
         pwm_RR.ChangeDutyCycle(RR)
     
-    reply = 'Motor Outputs: R: ', motor_R , 'L: ', motor_L
-
+    mot_msg = 'Motor Outputs: R: ', motor_R , 'L: ', motor_L
+    reply = str(mot_msg)
     sock.sendto(reply, addr)
 
 sock.close()
