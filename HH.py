@@ -75,7 +75,7 @@ except socket.error:
 host = 'localhost'
 port = 7004
 
-ynx = ""
+
 
 while True:
     joy_x = readadc(joy_x_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
@@ -84,6 +84,8 @@ while True:
     # convert the ADC values to something the motor driver can use
     joy_x = (joy_x - 525)
     joy_y = (joy_y - 521)
+
+    ynx = ""
 
     if joy_x >-1:
         ynx += "+" + str(joy_x)
