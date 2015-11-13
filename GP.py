@@ -47,29 +47,24 @@ while True:
     # receive data from client
     d = ''
     d = sock.recvfrom(8)
-    dat = d[0]
+    ynx = d[0]
     addr = d[1]
     print d
     # harshly rip the commands from the comfort of their string
-    joy_x = int(dat[0:4])
-    joy_y = int(dat[4:8])
+    joy_x = int(ynx[0:4])
+    joy_y = int(ynx[4:8])
 
     motor_L = float(joy_y + joy_x)/1024
     motor_R = float(joy_y - joy_x)/1024
 
     if motor_L > 1:
-        motor_L == 1
+        motor_L = 1
     if motor_R > 1:
-        motor_R == 1
+        motor_R = 1
     if motor_L < -1:
-        motor_L == -1
+        motor_L = -1
     if motor_R < -1:
-        motor_R == -1
-
-    LF = motor_L * 50
-    LR = motor_L * -50
-    RF = motor_R * 50
-    RR = motor_R * -50
+        motor_R = -1
        
     # send commands out to the motors
     if motor_L > 0:
