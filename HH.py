@@ -41,11 +41,14 @@ def readadc(adcnum, clockpin, mosipin, misopin, cspin):
     return adcout
 
 # function to concatenate control commands into a single string
-#def stringulate(cmd, dat):
-#    if cmd >= 0:
-#        dat += "+" + str(cmd)
-#    else:
-#        dat += str(cmd)
+ynx = ""
+def stringulate(cmd, ynx):
+    if cmd >-1:
+        ynx += "+" + str(cmd)
+        return ynx
+    else:
+        ynx += str(cmd)
+        return ynx
 
 
 # define which pins are being used
@@ -85,28 +88,22 @@ while True:
     joy_x = (joy_x - 525)
     joy_y = (joy_y - 521)
 
-    ynx = ""
+    
+    temp = ""
 
-    if joy_x >-1:
-        ynx += "+" + str(joy_x)
-    else:
-        ynx += str(joy_x)
-
-    if joy_y >-1:
-        ynx += "+" + str(joy_y)
-    else:
-        ynx += str(joy_y)
+    temp += stringulate(joy_x, ynx).zfill(4)
+    temp += stringulate(joy_y, ynx).zfill(4)
 
     print "Joy X", joy_x, "Joy Y", joy_y
 
     try:
-        sock.sendto(str(ynx), (host, port))
+        sock.sendto(str(temp), (host, port))
         d = sock.recvfrom(1024)
         reply = d[0]
         addr = d[1]
 
-        print 'Server reply:' + reply
+        print "Server reply:", reply
 
     except socket.error, msg:
-        print 'Error ' +str(msg[0])+ ': ' +msg[1]
+        print "Error " +str(msg[0])+ ": " +msg[1]
         sys.exit()
