@@ -65,6 +65,12 @@ while True:
         motor_L = -1
     if motor_R < -1:
         motor_R = -1
+
+    LF = motor_L * 100
+    LR = motor_L * -100
+    RF = motor_R * 100
+    RR = motor_R * -100
+       
        
     # send commands out to the motors
     if motor_L > 0:
