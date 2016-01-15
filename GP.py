@@ -46,13 +46,14 @@ print 'Socket bind complete'
 while True:
     # receive data from client
     d = ''
-    d = sock.recvfrom(8)
+    d = sock.recvfrom(10)
     ynx = d[0]
     addr = d[1]
-    print d
     # harshly rip the commands from the comfort of their string
     joy_x = int(ynx[0:4])
     joy_y = int(ynx[4:8])
+    l_trig = int(ynx[8])
+    r_trig = int(ynx[9])
 
     motor_L = float(joy_y + joy_x)/1024
     motor_R = float(joy_y - joy_x)/1024
@@ -85,8 +86,15 @@ while True:
     if motor_R <= 0:
         pwm_RF.ChangeDutyCycle(0)
         pwm_RR.ChangeDutyCycle(RR)
+
+    #check for triggers and do stuff (under construction)
+    if l_trig == 1:
+        print "Switch Camera!"
+    if r_trig == 1:
+        print "ZAP! KILL!"
     
     mot_msg = 'Motor Outputs: R: ', motor_R , 'L: ', motor_L
+    print mot_msg
     reply = str(mot_msg)
     sock.sendto(reply, addr)
 
