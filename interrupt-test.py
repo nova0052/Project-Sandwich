@@ -17,8 +17,8 @@ def cb_red(dummy):
     else:
         print "You released the red button!"
 
-GPIO.add_event_detect(12, GPIO.BOTH, callback=cb_green, bouncetime=100)
-GPIO.add_event_detect(16, GPIO.BOTH, callback=cb_red, bouncetime=100)
+GPIO.add_event_detect(12, GPIO.BOTH, callback=cb_green, bouncetime=50)
+GPIO.add_event_detect(16, GPIO.BOTH, callback=cb_red, bouncetime=50)
 
 try:
     pwd = raw_input("What's the password?\n")
