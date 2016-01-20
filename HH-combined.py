@@ -6,10 +6,7 @@ import os
 
 
 GPIO.setmode(GPIO.BCM)
-"""DEBUG = 1
-LEDStatus = 0
-was_pushed = 0
-"""
+
 # function to read SPI data from MCP3008
 def readadc(adcnum, clockpin, mosipin, misopin, cspin):
     if ((adcnum >7) or (adcnum <0)):
@@ -91,8 +88,8 @@ def PWR_func(channel):
         if GPIO.input(20):
             return
         else:
-            print "Powered Off!"
-#            os.system("shutdown -h now")
+            print "Powering Off!"
+            os.system("shutdown -h now")
 
 #function for left trigger button (not currently in use)
 
@@ -144,35 +141,7 @@ port = 7004
 
 while True:
     try:
-        """
-        # check the button states
-        if not(GPIO.input(21)):
-            if was_pushed == 1:
-                break
-            else:
-                was_pushed = 1
-                LEDStatus += 1
-        else:
-            was_pushed = 0
-        if (GPIO.input(12)):
-            l_trig = "off"
-        else:
-            l_trig = "on"
-
-        if (GPIO.input(16)):
-            r_trig = "off"
-        else:
-            r_trig = "on"
-
-        if not (GPIO.input(20)):
-            print "You pushed the power button! Are you sure you want to shut down the system?"
-            print "Hold the button for 5 seconds to shut down."
-            time.sleep(5)
-            if (GPIO.input(20)):
-                break
-            else:
-                os.system("shutdown -h now")"""
-        
+	# get joystick position from ADC
         joy_x = readadc(joy_x_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
         joy_y = readadc(joy_y_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
 
@@ -211,6 +180,6 @@ while True:
             print "Error " +str(msg[0])+ ": " +msg[1]
             sys.exit()"""
     except KeyboardInterrupt:
-        print "Halted by user!"
+        print "\nHalted by user!"
         GPIO.cleanup()
         sys.exit()
