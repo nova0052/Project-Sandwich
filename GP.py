@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import socket
 import sys
+import subprocess
 
 GPIO.setmode(GPIO.BCM)
 
@@ -21,9 +22,10 @@ pwm_LR.start(0)
 pwm_RF.start(0)
 pwm_RR.start(0)
 
+cam_last = 0
 
 host = ""
-port = 7004
+port = 17004
 
 # make the socket
 try:
@@ -33,9 +35,9 @@ except socket.error, msg :
     print 'Failed to create socket. Error Code ' + str(msg[0]) + ' Message ' + msg[1]
     sys.exit()
 
-# bind the socket to local host and port
+# bind the socket
 try:
-    sock.bind((host, port))
+    sock.bind(host, port)
 except socket.error, msg:
     print 'Bind failed. Error ' + str(msg[0]) + ' Message '+msg[1]
     sys.exit()
@@ -46,7 +48,7 @@ print 'Socket bind complete'
 while True:
     # receive data from client
     d = ''
-    d = sock.recvfrom(10)
+    d = sock.recvfrom(11)
     ynx = d[0]
     addr = d[1]
     # harshly rip the commands from the comfort of their string
@@ -54,6 +56,7 @@ while True:
     joy_y = int(ynx[4:8])
     l_trig = int(ynx[8])
     r_trig = int(ynx[9])
+    led = int(ynx[10])
 
     motor_L = float(joy_y + joy_x)/1024
     motor_R = float(joy_y - joy_x)/1024
@@ -88,14 +91,27 @@ while True:
         pwm_RR.ChangeDutyCycle(RR)
 
     #check for triggers and do stuff (under construction)
+    """ if l_trig == 1:
+        print "Switch Camera!" """
+
     if l_trig == 1:
-        print "Switch Camera!"
+        if l_trig != cam_last:
+            camfeed0.kill()
+            camfeed1 = subprocess.Popen('sudo raspivid -cs 1 -h 640 -w 800 -t 0 -o - | gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay! udpsink host=raspberrypi.local port=44444', shell=True)
+            cam_last = 1
+
+    if l_trig == 0:
+        if l_trig != cam_last:
+            camfeed1.kill()
+            camfeed1 = subprocess.Popen('sudo raspivid -cs 0 -h 640 -w 800 -t 0 -o - | gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay! udpsink host=raspberrypi.local port=44444', shell=True)
+            cam_last = 0
+    
     if r_trig == 1:
+        # placeholder for output to zapper circuit
         print "ZAP! KILL!"
+        
     
     mot_msg = 'Motor Outputs: R: ', motor_R , 'L: ', motor_L
     print mot_msg
-    reply = str(mot_msg)
-    sock.sendto(reply, addr)
 
 sock.close()

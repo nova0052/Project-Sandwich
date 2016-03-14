@@ -1,9 +1,7 @@
 import RPi.GPIO as GPIO
 import socket
 import sys
-import time
-import os
-
+import subprocess
 
 GPIO.setmode(GPIO.BCM)
 
@@ -62,8 +60,17 @@ def LED_func(channel):
             LEDStatus = 0
     else:
         return
-
-#function for left trigger
+#function to switch cameras (currently using green button)
+cam_select = 0
+def cam_select_func(channel):
+    global cam_select
+    if not GPIO.input(12):
+        cam_select =+ 1
+        if cam_select > 1:
+            cam_select = 0
+    else:
+        return
+#function for left trigger (not currently in use, see camera switch function above)
 l_trig = "off"
 def L_Trig_func(channel):
     global l_trig
@@ -119,7 +126,7 @@ GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 #set up the callbacks for button presses on each input pin
 GPIO.add_event_detect(21, GPIO.BOTH, callback=LED_func, bouncetime=50)
 GPIO.add_event_detect(20, GPIO.BOTH, callback=PWR_func, bouncetime=50)
-GPIO.add_event_detect(12, GPIO.BOTH, callback=L_Trig_func, bouncetime=50)
+GPIO.add_event_detect(12, GPIO.BOTH, callback=cam_select_func, bouncetime=50)
 GPIO.add_event_detect(16, GPIO.BOTH, callback=R_Trig_func, bouncetime=50)
 
 # joystick ADC channels
@@ -134,13 +141,18 @@ except socket.error:
     print 'Failed to create socket'
     sys.exit()
 
-host = 'localhost'
-port = 7004
+host = "DevProto.local"
+port = 17004
 
-
+videofeed = subprocess.Popen("gst-launch-1.0 udpsrc port=9000 caps='application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videoconvert ! queue max-size-time=100 ! eglglessink sync=false", shell = True)
 
 while True:
     try:
+        # make sure the video is running
+        vid_status = videofeed.poll()
+        if vid_status != None:
+            videofeed = subprocess.Popen("gst-launch-1.0 udpsrc port=9000 caps='application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264' ! rtph264depay ! h264parse ! omxh264dec ! videoconvert ! queue max-size-time=100 ! eglglessink sync=false", shell = True)
+        
 	# get joystick position from ADC
         joy_x = readadc(joy_x_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
         joy_y = readadc(joy_y_adc, SPICLK, SPIMOSI, SPIMISO, SPICS)
@@ -156,29 +168,30 @@ while True:
         temp += stringulate(joy_y, ynx).zfill(4)
 
         #add button statuses to the end of the string
-        temp += str(LEDStatus)
-        if l_trig =="on":
+        """if l_trig =="on":
             temp += "1"
         else:
-            temp += "0"
+            temp += "0" """
+        temp += str(cam_select)
         if r_trig =="on":
             temp += "1"
         else:
             temp += "0"
+        temp += str(LEDStatus)
         sys.stdout.write("\r%s" % temp)
         sys.stdout.flush()
 
-        """try:
+        try:
             sock.sendto(str(temp), (host, port))
-            d = sock.recvfrom(1024)
-            reply = d[0]
-            addr = d[1]
+            #d = sock.recvfrom(1024)
+            #reply = d[0]
+            #addr = d[1]
 
-            print "Server reply:", reply
+            #print "Server reply:", reply
 
         except socket.error, msg:
             print "Error " +str(msg[0])+ ": " +msg[1]
-            sys.exit()"""
+            sys.exit()
     except KeyboardInterrupt:
         print "\nHalted by user!"
         GPIO.cleanup()
