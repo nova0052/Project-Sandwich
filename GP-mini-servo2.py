@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+import RPIO as GPIO
 import os
 
 GPIO.setmode(GPIO.BCM)
@@ -63,15 +63,14 @@ GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(4, GPIO.FALLING, callback=PWR_func, bouncetime=50)
 
 # set up the PWM outputs to the motors 
-PWM_FREQ = 50
-pwm_LF = GPIO.PWM(19, PWM_FREQ)
-pwm_LR = GPIO.PWM(26, PWM_FREQ)
-pwm_RF = GPIO.PWM(16, PWM_FREQ)
-pwm_RR = GPIO.PWM(20, PWM_FREQ)
-pwm_LF.start(0)
-pwm_LR.start(0)
-pwm_RF.start(0)
-pwm_RR.start(0)
+
+pwm_MF = GPIO.PWM(19, 100)
+pwm_MR = GPIO.PWM(26, 100)
+servo = PWM.Servo()
+
+pwm_MF.start(0)
+pwm_MR.start(0)
+servo.set_servo(20, 1450)
 
 # joystick ADC channels
 joy_x_adc = 0
@@ -86,34 +85,24 @@ while True:
     joy_x = (joy_x - 525)
     joy_y = (joy_y - 521)
 
-    motor_L = float(joy_y + joy_x)/1024
-    motor_R = float(joy_y - joy_x)/1024
+    motor_DC = float(joy_y)/512
+    servo_pos = (float(joy_x)/512) * 650
 
-    if motor_L > 1:
-        motor_L = 1
-    if motor_R > 1:
-        motor_R = 1
-    if motor_L < -1:
-        motor_L = -1
-    if motor_R < -1:
-        motor_R = -1
 
-    LF = motor_L * 100
-    LR = motor_L * -100
-    RF = motor_R * 100
-    RR = motor_R * -100
-       
+    if motor_DC > 1:
+        motor_DC = 1
+    if motor_DC < -1:
+        motor_DC = -1
+
+    MF = motor_DC * 100
+    MR = motor_DC * -100
+
        
     # send commands out to the motors
-    if motor_L > 0:
-        pwm_LR.ChangeDutyCycle(0)
-        pwm_LF.ChangeDutyCycle(LF)
-    if motor_L <= 0:
-        pwm_LF.ChangeDutyCycle(0)
-        pwm_LR.ChangeDutyCycle(LR)
-    if motor_R > 0:
-        pwm_RR.ChangeDutyCycle(0)
-        pwm_RF.ChangeDutyCycle(RF)
-    if motor_R <= 0:
-        pwm_RF.ChangeDutyCycle(0)
-        pwm_RR.ChangeDutyCycle(RR)
+    servo.set_servo(1450 + servo_pos)
+    if motor_DC > 0:
+        pwm_MR.ChangeDutyCycle(0)
+        pwm_MF.ChangeDutyCycle(MF)
+    if motor_DC <= 0:
+        pwm_MF.ChangeDutyCycle(0)
+        pwm_MR.ChangeDutyCycle(MR)

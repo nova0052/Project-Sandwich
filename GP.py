@@ -5,11 +5,20 @@ import subprocess
 
 GPIO.setmode(GPIO.BCM)
 
+# callback function for power switch
+def PWR_func(channel):
+    if not GPIO.input(4):
+        print "Powering Off!"
+        os.system("shutdown -h now")
+
 # set up the pins
 GPIO.setup(19, GPIO.OUT)
 GPIO.setup(26, GPIO.OUT)
 GPIO.setup(16, GPIO.OUT)
 GPIO.setup(20, GPIO.OUT)
+GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+GPIO.add_event_detect(4, GPIO.FALLING, callback=PWR_func, bouncetime=50)
 
 # set up the PWM outputs to the motors 
 PWM_FREQ = 50
